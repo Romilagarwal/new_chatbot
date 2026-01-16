@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Login</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f0f4f8;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .login-box {
+      background: white;
+      padding: 40px 30px;
+      border-radius: 10px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      width: 320px;
+    }
+
+    .login-box h2 {
+      margin-bottom: 24px;
+      color: #333;
+      text-align: center;
+    }
+
+    .login-box label {
+      display: block;
+      margin-bottom: 8px;
+      color: #555;
+      font-weight: 500;
+    }
+
+    .login-box input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 20px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      font-size: 14px;
+    }
+
+    .login-box button[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-box">
+    <h2>Login</h2>
+    <form id="loginForm">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required />
+
+      <label for="employee_id">Employee ID:</label>
+      <input type="text" id="employee_id" required />
+
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <script>
+ 
+ document.addEventListener('DOMContentLoaded', () => {
+    localStorage.removeItem('activeSession');
+    localStorage.removeItem('sessionEnd');
+  });
+  
+  document.getElementById('loginForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const name = document.getElementById('name').value.trim();
+    const id = document.getElementById('employee_id').value.trim();
+
+    if (name && id) {
+      const entry = { name, id, time: new Date().toLocaleString() };
+      
+      let loginHistory = JSON.parse(localStorage.getItem('loginHistory') || '[]');
+      loginHistory.push(entry);
+      localStorage.setItem('loginHistory', JSON.stringify(loginHistory));
+      
+      localStorage.setItem('activeSession', JSON.stringify(entry));
+      localStorage.setItem('lastActivity', new Date().getTime());
+      
+      window.location.href = "/";
+    } else {
+      alert("Please enter both name and employee ID");
+    }
+  });
+  </script>
+</body>
+</html>

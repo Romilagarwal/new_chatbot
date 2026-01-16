@@ -20,7 +20,7 @@ except ImportError:
     MIXTRAL_AVAILABLE = False
     print("  ⚠ Mixtral not available, using fallback mode")
 
-def load_reference_data():
+def load_data():
     try:
         csv_file = os.getenv('DATABASE_PATH', 'mix_dataset_final.csv')
         df = pd.read_csv(csv_file).dropna(subset=['Machine Type', 'MACHINE', 'Problem Description'])
@@ -29,7 +29,7 @@ def load_reference_data():
         print(f"Warning: Could not load reference data: {e}")
         return None
 
-reference_df = load_reference_data()
+reference_df = load_data()
 embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
 reference_embeddings = None
 

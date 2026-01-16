@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ title }}</title>
-    
+
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+
     <!-- Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
+
     <style>
         * {
             margin: 0;
@@ -700,22 +700,22 @@
         }
 
         @keyframes slideUp {
-            from { 
+            from {
                 opacity: 0;
                 transform: translateY(20px);
             }
-            to { 
+            to {
                 opacity: 1;
                 transform: translateY(0);
             }
         }
 
         @keyframes slideDown {
-            from { 
+            from {
                 opacity: 0;
                 transform: translateY(-10px);
             }
-            to { 
+            to {
                 opacity: 1;
                 transform: translateY(0);
             }
@@ -747,12 +747,12 @@
             .main-layout {
                 grid-template-columns: 1fr;
             }
-            
+
             .header {
                 flex-direction: column;
                 text-align: center;
             }
-            
+
             .header-actions {
                 width: 100%;
                 justify-content: center;
@@ -763,23 +763,23 @@
             body {
                 padding: 10px;
             }
-            
+
             .header {
                 padding: 20px;
             }
-            
+
             .header-title h1 {
                 font-size: 22px;
             }
-            
+
             .stats-bar {
                 grid-template-columns: 1fr;
             }
-            
+
             .chat-section {
                 height: 600px;
             }
-            
+
             .message-content {
                 max-width: 85% !important;
             }
@@ -943,7 +943,7 @@
                             <span class="message-time">Just now</span>
                         </div>
                     </div>
-                    
+
                     <div class="message message-assistant" style="display: none;">
                         <div class="message-avatar">
                             <i class="fas fa-robot"></i>
@@ -958,10 +958,10 @@
 
                 <div class="chat-input-container">
                     <div class="chat-input-wrapper">
-                        <input 
-                            type="text" 
-                            class="chat-input" 
-                            id="chatInput" 
+                        <input
+                            type="text"
+                            class="chat-input"
+                            id="chatInput"
                             placeholder="Ask about machine issues..."
                             onkeypress="if(event.key === 'Enter') sendMessage()"
                         >
@@ -1003,10 +1003,10 @@
                             <label class="form-label">
                                 Machine Name <span class="required">*</span>
                             </label>
-                            <input 
-                                type="text" 
-                                class="form-input" 
-                                id="machineName" 
+                            <input
+                                type="text"
+                                class="form-input"
+                                id="machineName"
                                 placeholder="e.g., PRE-APMT, WELDING SPOT..."
                                 required
                             >
@@ -1016,8 +1016,8 @@
                             <label class="form-label">
                                 Problem Description <span class="required">*</span>
                             </label>
-                            <textarea 
-                                class="form-textarea" 
+                            <textarea
+                                class="form-textarea"
                                 id="problemDescription"
                                 placeholder="Describe the issue in detail..."
                                 required
@@ -1032,7 +1032,7 @@
 
                     <div id="resultsContainer" class="results-container">
                         <div id="diagnosisResults"></div>
-                        
+
                         <div class="feedback-actions">
                             <button class="feedback-btn" onclick="submitFeedback(true)">
                                 <i class="fas fa-thumbs-up"></i>
@@ -1047,8 +1047,8 @@
                         <div class="feedback-form" id="feedbackForm">
                             <div class="form-group">
                                 <label class="form-label">Your Feedback</label>
-                                <textarea 
-                                    class="form-textarea" 
+                                <textarea
+                                    class="form-textarea"
                                     id="feedbackText"
                                     placeholder="Help us improve..."
                                     style="min-height: 80px;"
@@ -1141,390 +1141,365 @@
     </div>
 
     <script>
-// Session ID
-const sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
-let currentFeedbackType = null;
+        // Session ID
+        const sessionId = 'session_' + Date.now();
+        let currentFeedbackType = null;
 
-// Initialize on page load
-document.addEventListener('DOMContentLoaded', function() {
-    console.log('Page loaded successfully');
-    loadStatistics();
-    
-    // Get elements
-    const chatInput = document.getElementById('chatInput');
-    const sendBtn = document.getElementById('sendBtn');
-    
-    if (!chatInput || !sendBtn) {
-        console.error('Chat elements not found!');
-        return;
-    }
-    
-    console.log('Chat initialized');
-    
-    // Enter key handler
-    chatInput.addEventListener('keydown', function(e) {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            console.log('Enter pressed');
-            sendMessage();
-        }
-    });
-    
-    // Send button handler
-    sendBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        console.log('Send button clicked');
-        sendMessage();
-    });
-});
+        // Load statistics on page load
+        window.addEventListener('load', loadStatistics);
 
-function loadStatistics() {
-    fetch('/stats')
-        .then(res => res.json())
-        .then(data => {
-            document.getElementById('totalQueries').textContent = data.total_queries || 0;
-            document.getElementById('successfulResponses').textContent = data.successful_responses || 0;
-            document.getElementById('avgRating').textContent = (data.average_rating || 0).toFixed(1);
-            document.getElementById('correctionsSubmitted').textContent = data.corrections_submitted || 0;
-        })
-        .catch(err => console.error('Stats error:', err));
-}
+        function loadStatistics() {
+            fetch('/stats')
+                .then(res => res.json())
+                .then(data => {
+                    document.getElementById('totalQueries').textContent = data.total_queries || 0;
+                    document.getElementById('successfulResponses').textContent = data.successful_responses || 0;
+                    document.getElementById('avgRating').textContent = (data.average_rating || 0).toFixed(1);
+                    document.getElementById('correctionsSubmitted').textContent = data.corrections_submitted || 0;
+                });
+        }
 
-async function sendMessage() {
-    const input = document.getElementById('chatInput');
-    const message = input.value.trim();
-    
-    console.log('sendMessage called with:', message);
-    
-    if (!message) {
-        console.log('Empty message, returning');
-        return;
-    }
-    
-    // Disable controls
-    const btn = document.getElementById('sendBtn');
-    btn.disabled = true;
-    input.disabled = true;
-    
-    // Add user message to UI
-    addMessage(message, 'user');
-    input.value = '';
-    
-    // Show typing indicator
-    showTypingIndicator();
-    
-    try {
-        console.log('Sending to /chat endpoint...');
-        
-        const response = await fetch('/chat', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ 
-                message: message,
-                sessionId: sessionId 
-            })
-        });
-        
-        console.log('Response status:', response.status);
-        
-        if (!response.ok) {
-            throw new Error('Server returned ' + response.status);
+        // Chat functionality
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send to backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, sessionId })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.error) {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                } else {
+                    addMessage(data.response, 'assistant');
+                }
+
+                loadStatistics();
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Connection error. Please check your internet connection.', 'assistant');
+            }
         }
-        
-        const data = await response.json();
-        console.log('Response data:', data);
-        
-        hideTypingIndicator();
-        
-        if (data.response) {
-            addMessage(data.response, 'assistant');
-        } else if (data.error) {
-            addMessage('Error: ' + data.error, 'assistant');
-        } else {
-            addMessage('Unexpected response format', 'assistant');
-        }
-        
-        loadStatistics();
-        
-    } catch (error) {
-        console.error('Error sending message:', error);
-        hideTypingIndicator();
-        addMessage('Connection error. Please check your internet connection and try again.', 'assistant');
-    } finally {
-        // Re-enable controls
-        btn.disabled = false;
-        input.disabled = false;
-        input.focus();
-    }
-}
 
 function addMessage(text, type) {
-    console.log('Adding message:', type, text.substring(0, 50));
-    
     const messagesDiv = document.getElementById('chatMessages');
     const messageDiv = document.createElement('div');
-    messageDiv.className = 'message message-' + type;
-    
+    messageDiv.className = `message message-${type}`;
+
     const time = new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-    
-    // Format text
-    const formattedText = text.replace(/\n/g, '<br>');
-    
+
     if (type === 'assistant') {
         messageDiv.innerHTML = `
             <div class="message-avatar">
                 <i class="fas fa-robot"></i>
             </div>
             <div class="message-content">
-                <p>${formattedText}</p>
+                <p>${formatText(text)}</p>
                 <span class="message-time">${time}</span>
             </div>
         `;
     } else {
         messageDiv.innerHTML = `
             <div class="message-content">
-                <p>${formattedText}</p>
+                <p>${formatText(text)}</p>
                 <span class="message-time">${time}</span>
             </div>
         `;
     }
-    
-    // Insert before typing indicator
-    const typingMsg = document.querySelector('.message-assistant:last-child');
-    if (typingMsg) {
-        messagesDiv.insertBefore(messageDiv, typingMsg);
+
+    // ✅ FIXED: Properly handle typing indicator
+    const typingWrapper = messagesDiv.querySelector('.typing-indicator-wrapper');
+    if (typingWrapper) {
+        // Insert before typing indicator if it exists
+        messagesDiv.insertBefore(messageDiv, typingWrapper);
     } else {
+        // Otherwise just append the message
         messagesDiv.appendChild(messageDiv);
     }
-    
-    // Scroll to bottom
+
     messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }
 
-function showTypingIndicator() {
-    const indicator = document.querySelector('.typing-indicator');
-    if (indicator) {
-        indicator.style.display = 'flex';
-        document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
-    }
-}
-
-function hideTypingIndicator() {
-    const indicator = document.querySelector('.typing-indicator');
-    if (indicator) {
-        indicator.style.display = 'none';
-    }
-}
-
-// Diagnosis form submission
-async function submitDiagnosis(event) {
-    event.preventDefault();
-    
-    const btn = document.getElementById('diagnoseBtn');
-    const originalHTML = btn.innerHTML;
-    btn.innerHTML = '<div class="spinner"></div> Analyzing...';
-    btn.disabled = true;
-    
-    const data = {
-        machineType: document.getElementById('machineType').value,
-        machineName: document.getElementById('machineName').value,
-        problem: document.getElementById('problemDescription').value
-    };
-    
-    try {
-        const response = await fetch('/diagnose', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        const result = await response.json();
-        
-        if (result.diagnosis) {
-            displayDiagnosisResults(result);
-        } else {
-            showNotification('Error', result.error || 'Unknown error', 'error');
+        function formatText(text) {
+            // Convert URLs to links
+            text = text.replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank">$1</a>');
+            // Convert newlines to <br>
+            text = text.replace(/\n/g, '<br>');
+            return text;
         }
-    } catch (error) {
-        console.error('Diagnosis error:', error);
-        showNotification('Error', 'Connection error', 'error');
-    } finally {
-        btn.innerHTML = originalHTML;
-        btn.disabled = false;
-    }
-}
 
-function displayDiagnosisResults(result) {
-    const container = document.getElementById('resultsContainer');
-    const resultsDiv = document.getElementById('diagnosisResults');
-    
-    let html = '';
-    
-    // Show similar cases first
-    if (result.similarCases && result.similarCases.length) {
-        html += '<div class="similar-cases"><h4 style="color: var(--secondary); margin-bottom: 15px;"><i class="fas fa-history"></i> Past Cases from Database</h4>';
-        result.similarCases.forEach(c => {
-            html += `<div class="case-card">
-                <strong>Machine:</strong> ${c.machine}<br>
-                <strong>Problem:</strong> ${c.problem}<br>
-                <strong>Root Cause:</strong> ${c.rootCause}<br>
-                <strong>Solution:</strong> ${c.solution}
-            </div>`;
-        });
-        html += '</div>';
-    }
-    
-    // Analysis based on past cases
-    if (result.diagnosis.similarCasesAnalysis) {
-        html += `<div class="result-section">
-            <h4><i class="fas fa-search"></i> Analysis</h4>
-            <p>${result.diagnosis.similarCasesAnalysis}</p>
-        </div>`;
-    }
-    
-    // Root cause
-    html += `<div class="result-section">
-        <h4><i class="fas fa-exclamation-circle"></i> Root Cause</h4>
-        <p>${result.diagnosis.rootCause}</p>
-    </div>`;
-    
-    // Immediate actions
-    html += `<div class="result-section">
-        <h4><i class="fas fa-tools"></i> Immediate Actions</h4>
-        <ol>${result.diagnosis.immediateActions.map(a => '<li>' + a + '</li>').join('')}</ol>
-    </div>`;
-    
-    // Additional solutions
-    if (result.diagnosis.additionalSolutions && result.diagnosis.additionalSolutions.length) {
-        html += `<div class="result-section">
-            <h4><i class="fas fa-lightbulb"></i> Additional Solutions</h4>
-            <ul>${result.diagnosis.additionalSolutions.map(s => '<li>' + s + '</li>').join('')}</ul>
-        </div>`;
-    }
-    
-    // Preventive measures
-    if (result.diagnosis.preventiveMeasures && result.diagnosis.preventiveMeasures.length) {
-        html += `<div class="result-section">
-            <h4><i class="fas fa-shield-alt"></i> Preventive Measures</h4>
-            <ul>${result.diagnosis.preventiveMeasures.map(m => '<li>' + m + '</li>').join('')}</ul>
-        </div>`;
-    }
-    
-    resultsDiv.innerHTML = html;
-    container.style.display = 'block';
-    container.scrollIntoView({ behavior: 'smooth' });
-}
-
-
-function submitFeedback(wasHelpful) {
-    currentFeedbackType = wasHelpful;
-    
-    fetch('/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, wasHelpful, rating: wasHelpful ? 5 : 2 })
-    });
-    
-    document.querySelectorAll('.feedback-btn').forEach(b => b.classList.remove('active'));
-    event.target.classList.add('active');
-    document.getElementById('feedbackForm').style.display = 'block';
-    
-    showNotification('Thank you!', 'Feedback received', 'success');
-    loadStatistics();
-}
-
-async function submitDetailedFeedback() {
-    const text = document.getElementById('feedbackText').value;
-    
-    await fetch('/feedback', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ sessionId, feedback: text, wasHelpful: currentFeedbackType })
-    });
-    
-    document.getElementById('feedbackText').value = '';
-    document.getElementById('feedbackForm').style.display = 'none';
-    showNotification('Success', 'Thank you!', 'success');
-}
-
-function openCorrectionModal() {
-    document.getElementById('correctionModal').style.display = 'flex';
-}
-
-function closeCorrectionModal() {
-    document.getElementById('correctionModal').style.display = 'none';
-    document.getElementById('correctionForm').reset();
-}
-
-async function submitCorrection(event) {
-    event.preventDefault();
-    
-    const btn = document.getElementById('submitCorrectionBtn');
-    const original = btn.innerHTML;
-    btn.innerHTML = '<div class="spinner"></div> Submitting...';
-    btn.disabled = true;
-    
-    const data = {
-        machineType: document.getElementById('corrMachineType').value,
-        machineName: document.getElementById('corrMachineName').value,
-        problemDescription: document.getElementById('corrProblem').value,
-        rootCause: document.getElementById('corrRootCause').value,
-        actionTaken: document.getElementById('corrAction').value,
-        submittedBy: document.getElementById('corrName').value || 'Anonymous'
-    };
-    
-    try {
-        await fetch('/submit-correction', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-        
-        showNotification('Success', 'Solution submitted!', 'success');
-        closeCorrectionModal();
-        loadStatistics();
-    } catch (error) {
-        showNotification('Error', 'Failed to submit', 'error');
-    } finally {
-        btn.innerHTML = original;
-        btn.disabled = false;
-    }
-}
-
-function showNotification(title, message, type) {
-    const notif = document.getElementById('notification');
-    notif.className = 'notification ' + type + ' show';
-    document.getElementById('notificationTitle').textContent = title;
-    document.getElementById('notificationMessage').textContent = message;
-    
-    setTimeout(() => notif.classList.remove('show'), 4000);
-}
-
-function exportChatHistory() {
-    window.location.href = '/export/chat-history';
-    showNotification('Success', 'Exporting chat history...', 'success');
-}
-
-function clearChat() {
-    if (confirm('Clear all chat history?')) {
-        const msgs = document.getElementById('chatMessages');
-        while (msgs.children.length > 2) {
-            msgs.removeChild(msgs.children[1]);
+        function showTypingIndicator() {
+            const indicator = document.querySelector('.typing-indicator');
+            indicator.style.display = 'flex';
+            document.getElementById('chatMessages').scrollTop = document.getElementById('chatMessages').scrollHeight;
         }
-        fetch('/admin/clear-history', { method: 'POST' });
-        showNotification('Success', 'Chat cleared', 'success');
-    }
-}
 
-// Close modal on outside click
-window.onclick = function(e) {
-    if (e.target.id === 'correctionModal') {
-        closeCorrectionModal();
-    }
-}
+        function hideTypingIndicator() {
+            const indicator = document.querySelector('.typing-indicator');
+            indicator.style.display = 'none';
+        }
 
+        // Diagnosis functionality
+        async function submitDiagnosis(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('diagnoseBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Analyzing...';
+            btn.disabled = true;
+
+            const data = {
+                machineType: document.getElementById('machineType').value,
+                machineName: document.getElementById('machineName').value,
+                problem: document.getElementById('problemDescription').value
+            };
+
+            try {
+                const response = await fetch('/diagnose', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    showNotification('Error', result.error, 'error');
+                } else {
+                    displayDiagnosisResults(result);
+                }
+            } catch (error) {
+                showNotification('Error', 'Connection error. Please try again.', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        function displayDiagnosisResults(result) {
+            const container = document.getElementById('resultsContainer');
+            const resultsDiv = document.getElementById('diagnosisResults');
+
+            let html = `
+                <div class="result-section">
+                    <h4><i class="fas fa-exclamation-circle"></i> Root Cause</h4>
+                    <p>${result.diagnosis.rootCause}</p>
+                </div>
+
+                <div class="result-section">
+                    <h4><i class="fas fa-tools"></i> Immediate Actions</h4>
+                    <ul>
+                        ${result.diagnosis.immediateActions.map(action => `<li>${action}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+
+            if (result.diagnosis.additionalSolutions && result.diagnosis.additionalSolutions.length > 0) {
+                html += `
+                    <div class="result-section">
+                        <h4><i class="fas fa-lightbulb"></i> Additional Solutions</h4>
+                        <ul>
+                            ${result.diagnosis.additionalSolutions.map(sol => `<li>${sol}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (result.diagnosis.preventiveMeasures && result.diagnosis.preventiveMeasures.length > 0) {
+                html += `
+                    <div class="result-section">
+                        <h4><i class="fas fa-shield-alt"></i> Preventive Measures</h4>
+                        <ul>
+                            ${result.diagnosis.preventiveMeasures.map(measure => `<li>${measure}</li>`).join('')}
+                        </ul>
+                    </div>
+                `;
+            }
+
+            if (result.similarCases && result.similarCases.length > 0) {
+                html += `
+                    <div class="similar-cases">
+                        <h4 style="color: var(--secondary); margin-bottom: 15px;">
+                            <i class="fas fa-history"></i> Similar Past Cases
+                        </h4>
+                        ${result.similarCases.map(case_ => `
+                            <div class="case-card">
+                                <strong>${case_.machine}</strong>
+                                <p><strong>Problem:</strong> ${case_.problem}</p>
+                                <p><strong>Root Cause:</strong> ${case_.rootCause}</p>
+                                <p><strong>Solution:</strong> ${case_.solution}</p>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            }
+
+            resultsDiv.innerHTML = html;
+            container.style.display = 'block';
+            container.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+            loadStatistics();
+        }
+
+        // Feedback functionality
+        function submitFeedback(wasHelpful) {
+            currentFeedbackType = wasHelpful;
+
+            // Send immediate feedback
+            fetch('/feedback', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    sessionId,
+                    wasHelpful,
+                    rating: wasHelpful ? 5 : 2
+                })
+            });
+
+            // Update button states
+            const buttons = document.querySelectorAll('.feedback-btn');
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Show feedback form
+            document.getElementById('feedbackForm').style.display = 'block';
+
+            showNotification('Thank you!', 'Your feedback helps us improve.', 'success');
+            loadStatistics();
+        }
+
+        async function submitDetailedFeedback() {
+            const feedbackText = document.getElementById('feedbackText').value;
+
+            try {
+                await fetch('/feedback', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        sessionId,
+                        feedback: feedbackText,
+                        wasHelpful: currentFeedbackType,
+                        rating: currentFeedbackType ? 5 : 2
+                    })
+                });
+
+                document.getElementById('feedbackText').value = '';
+                document.getElementById('feedbackForm').style.display = 'none';
+                showNotification('Success!', 'Thank you for your detailed feedback!', 'success');
+            } catch (error) {
+                showNotification('Error', 'Failed to submit feedback', 'error');
+            }
+        }
+
+        // Correction modal
+        function openCorrectionModal() {
+            document.getElementById('correctionModal').style.display = 'flex';
+        }
+
+        function closeCorrectionModal() {
+            document.getElementById('correctionModal').style.display = 'none';
+            document.getElementById('correctionForm').reset();
+        }
+
+        async function submitCorrection(event) {
+            event.preventDefault();
+
+            const btn = document.getElementById('submitCorrectionBtn');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<div class="spinner"></div> Submitting...';
+            btn.disabled = true;
+
+            const data = {
+                machineType: document.getElementById('corrMachineType').value,
+                machineName: document.getElementById('corrMachineName').value,
+                problemDescription: document.getElementById('corrProblem').value,
+                rootCause: document.getElementById('corrRootCause').value,
+                actionTaken: document.getElementById('corrAction').value,
+                submittedBy: document.getElementById('corrName').value || 'Anonymous'
+            };
+
+            try {
+                const response = await fetch('/submit-correction', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+
+                const result = await response.json();
+
+                if (result.error) {
+                    showNotification('Error', result.error, 'error');
+                } else {
+                    showNotification('Success!', 'Your solution has been submitted. Thank you for contributing!', 'success');
+                    closeCorrectionModal();
+                    loadStatistics();
+                }
+            } catch (error) {
+                showNotification('Error', 'Failed to submit correction', 'error');
+            } finally {
+                btn.innerHTML = originalText;
+                btn.disabled = false;
+            }
+        }
+
+        // Utility functions
+        function showNotification(title, message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.className = `notification ${type} show`;
+            document.getElementById('notificationTitle').textContent = title;
+            document.getElementById('notificationMessage').textContent = message;
+
+            const icon = notification.querySelector('.notification-icon i');
+            icon.className = type === 'success' ? 'fas fa-check' : 'fas fa-times';
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 4000);
+        }
+
+        async function exportChatHistory() {
+            window.location.href = '/export/chat-history';
+            showNotification('Success', 'Chat history exported!', 'success');
+        }
+
+        function clearChat() {
+            if (confirm('Are you sure you want to clear the chat history?')) {
+                const messagesDiv = document.getElementById('chatMessages');
+                const firstMessage = messagesDiv.querySelector('.message');
+                const typingIndicator = messagesDiv.querySelector('.typing-indicator').parentElement.parentElement;
+
+                messagesDiv.innerHTML = '';
+                messagesDiv.appendChild(firstMessage);
+                messagesDiv.appendChild(typingIndicator);
+
+                fetch('/admin/clear-history', { method: 'POST' });
+                showNotification('Success', 'Chat cleared!', 'success');
+            }
+        }
+
+        // Close modal on outside click
+        window.onclick = function(event) {
+            const modal = document.getElementById('correctionModal');
+            if (event.target === modal) {
+                closeCorrectionModal();
+            }
+        }
     </script>
 </body>
 </html>

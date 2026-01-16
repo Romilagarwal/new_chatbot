@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI-Powered Industrial Equipment Diagnostics</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary-color: #2563eb;
+            --primary-dark: #1e40af;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --text-primary: #1f2937;
+            --text-secondary: #6b7280;
+            --bg-primary: #ffffff;
+            --bg-secondary: #f9fafb;
+            --border-color: #e5e7eb;
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        .card {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
+        }
+
+        .card-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            font-size: 1.3em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            padding: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .stat-card:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            font-weight: 500;
+        }
+
+        .chat-section {
+            display: grid;
+            grid-template-columns: 1fr 450px;
+            gap: 20px;
+        }
+
+        .chat-container {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            box-shadow: var(--shadow-lg);
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+        }
+
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            padding: 20px;
+            font-size: 1.2em;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: #f8f9fa;
+        }
+
+        .message {
+            margin-bottom: 16px;
+            display: flex;
+            gap: 12px;
+            animation: messageSlide 0.3s ease-out;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.2em;
+        }
+
+        .message.user .message-avatar {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+        }
+
+        .message.assistant .message-avatar {
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+        }
+
+        .message-content {
+            max-width: 70%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            line-height: 1.5;
+        }
+
+        .message.user .message-content {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-radius: 12px 12px 0 12px;
+        }
+
+        .message.assistant .message-content {
+            background: white;
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+            border-radius: 12px 12px 12px 0;
+        }
+
+        .chat-input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid var(--border-color);
+            border-radius: 0 0 16px 16px;
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 12px;
+        }
+
+        .chat-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            font-size: 1em;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+
+        .chat-input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .btn-send {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border: none;
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+        }
+
+        .btn-send:hover {
+            transform: scale(1.1) rotate(15deg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-send:active {
+            transform: scale(0.95);
+        }
+
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .quick-actions {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .quick-actions h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .action-btn {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(135deg, var(--primary-color), var(--primary-dark));
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateX(5px);
+        }
+
+        .contribution-form {
+            background: var(--bg-primary);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: var(--shadow-lg);
+        }
+
+        .contribution-form h3 {
+            color: var(--text-primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+            font-weight: 500;
+            font-size: 0.9em;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 10px 12px;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            font-size: 0.95em;
+            transition: all 0.3s ease;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--success-color), #059669);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 10px 16px;
+            background: white;
+            border-radius: 12px;
+            width: fit-content;
+            border: 1px solid var(--border-color);
+        }
+
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            background: var(--text-secondary);
+            border-radius: 50%;
+            display: inline-block;
+            margin: 0 2px;
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% {
+                transform: translateY(0);
+            }
+            30% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 16px 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: var(--shadow-lg);
+            display: none;
+            animation: slideInRight 0.3s ease-out;
+            z-index: 1000;
+            max-width: 300px;
+        }
+
+        @keyframes slideInRight {
+            from {
+                transform: translateX(400px);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .notification.success {
+            border-left: 4px solid var(--success-color);
+        }
+
+        .notification.error {
+            border-left: 4px solid var(--danger-color);
+        }
+
+        @media (max-width: 1200px) {
+            .chat-section {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .chat-container {
+                height: 500px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-cogs"></i> AI-Powered Industrial Equipment Diagnostics</h1>
+            <p>Your intelligent troubleshooting companion for industrial machinery</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Statistics Dashboard -->
+            <div class="card">
+                <div class="card-header">
+                    <i class="fas fa-chart-line"></i>
+                    System Statistics
+                </div>
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalQueries">0</div>
+                        <div class="stat-label">Total Queries</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="successfulResolutions">0</div>
+                        <div class="stat-label">Successful Resolutions</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="averageRating">0.0</div>
+                        <div class="stat-label">Average Rating</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="userContributions">0</div>
+                        <div class="stat-label">User Contributions</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Section -->
+            <div class="chat-section">
+                <!-- Main Chat -->
+                <div class="chat-container">
+                    <div class="chat-header">
+                        <i class="fas fa-robot"></i>
+                        AI Assistant
+                    </div>
+                    <div class="chat-messages" id="chatMessages">
+                        <div class="message assistant">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <strong>👋 Hi! I'm your AI troubleshooting assistant</strong> trained on your facility's equipment data. I can help you:
+                                <br><br>
+                                ✅ Diagnose machine problems<br>
+                                ✅ Provide step-by-step solutions<br>
+                                ✅ Access maintenance history<br>
+                                ✅ Preventive care recommendations<br>
+                                <br>
+                                <em>Ask me anything or use the diagnosis form! 🔧</em>
+                            </div>
+                        </div>
+                        <div class="typing-indicator" id="typingIndicator">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+                    </div>
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <input
+                                type="text"
+                                class="chat-input"
+                                id="chatInput"
+                                placeholder="Ask about machine issues..."
+                                onkeypress="if(event.key === 'Enter') sendMessage()"
+                            >
+                            <button class="btn-send" onclick="sendMessage()" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Sidebar -->
+                <div class="sidebar">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <h3><i class="fas fa-bolt"></i> Quick Actions</h3>
+                        <button class="action-btn" onclick="quickQuery('Machine not starting')">
+                            <i class="fas fa-power-off"></i>
+                            Machine Not Starting
+                        </button>
+                        <button class="action-btn" onclick="quickQuery('Error codes and alarms')">
+                            <i class="fas fa-exclamation-triangle"></i>
+                            Error Codes
+                        </button>
+                        <button class="action-btn" onclick="quickQuery('Quality issues with output')">
+                            <i class="fas fa-tasks"></i>
+                            Quality Issues
+                        </button>
+                        <button class="action-btn" onclick="quickQuery('Preventive maintenance schedule')">
+                            <i class="fas fa-calendar-check"></i>
+                            Maintenance Schedule
+                        </button>
+                        <button class="action-btn" onclick="quickQuery('Safety protocols')">
+                            <i class="fas fa-shield-alt"></i>
+                            Safety Protocols
+                        </button>
+                    </div>
+
+                    <!-- Contribution Form -->
+                    <div class="contribution-form">
+                        <h3><i class="fas fa-hands-helping"></i> Share Your Solution</h3>
+                        <p style="color: var(--text-secondary); font-size: 0.9em; margin-bottom: 15px;">
+                            Help improve our AI! Share a problem you solved so others can benefit from your expertise.
+                        </p>
+                        <form id="contributionForm" onsubmit="submitContribution(event)">
+                            <div class="form-group">
+                                <label for="problemDesc">Problem Description</label>
+                                <textarea
+                                    class="form-control"
+                                    id="problemDesc"
+                                    placeholder="Describe the issue you encountered..."
+                                    required
+                                ></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="solutionDesc">Solution</label>
+                                <textarea
+                                    class="form-control"
+                                    id="solutionDesc"
+                                    placeholder="How did you fix it?"
+                                    required
+                                ></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label for="machineType">Machine Type</label>
+                                <input
+                                    type="text"
+                                    class="form-control"
+                                    id="machineType"
+                                    placeholder="e.g., CNC Lathe, Injection Molder"
+                                    required
+                                >
+                            </div>
+                            <button type="submit" class="btn-submit">
+                                <i class="fas fa-paper-plane"></i> Submit Contribution
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div class="notification" id="notification">
+        <span id="notificationText"></span>
+    </div>
+
+    <script>
+        let sessionId = generateSessionId();
+
+        function generateSessionId() {
+            return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        }
+
+        async function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+
+            if (!message) return;
+
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+
+            // Show typing indicator
+            showTypingIndicator();
+
+            // Send to backend
+            try {
+                const response = await fetch('/chat', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ message, sessionId })
+                });
+
+                const data = await response.json();
+                hideTypingIndicator();
+
+                if (data.error) {
+                    addMessage('Sorry, I encountered an error. Please try again.', 'assistant');
+                } else {
+                    addMessage(data.response, 'assistant');
+                }
+
+                loadStatistics();
+            } catch (error) {
+                hideTypingIndicator();
+                addMessage('Connection error. Please check your internet connection.', 'assistant');
+            }
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar';
+            avatar.innerHTML = sender === 'user' ? '<i class="fas fa-user"></i>' : '<i class="fas fa-robot"></i>';
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+            content.textContent = text;
+
+            messageDiv.appendChild(avatar);
+            messageDiv.appendChild(content);
+            messagesContainer.appendChild(messageDiv);
+
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'block';
+            const messagesContainer = document.getElementById('chatMessages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function quickQuery(query) {
+            document.getElementById('chatInput').value = query;
+            sendMessage();
+        }
+
+        async function submitContribution(event) {
+            event.preventDefault();
+
+            const problem = document.getElementById('problemDesc').value;
+            const solution = document.getElementById('solutionDesc').value;
+            const machineType = document.getElementById('machineType').value;
+
+            try {
+                const response = await fetch('/contribute', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ problem, solution, machineType })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showNotification('Thank you for your contribution! 🎉', 'success');
+                    document.getElementById('contributionForm').reset();
+                    loadStatistics();
+                } else {
+                    showNotification('Failed to submit contribution. Please try again.', 'error');
+                }
+            } catch (error) {
+                showNotification('Connection error. Please try again.', 'error');
+            }
+        }
+
+        function showNotification(text, type) {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+
+            notificationText.textContent = text;
+            notification.className = `notification ${type}`;
+            notification.style.display = 'block';
+
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+
+        async function loadStatistics() {
+            try {
+                const response = await fetch('/statistics');
+                const data = await response.json();
+
+                document.getElementById('totalQueries').textContent = data.total_queries || 0;
+                document.getElementById('successfulResolutions').textContent = data.successful_resolutions || 0;
+                document.getElementById('averageRating').textContent = (data.average_rating || 0).toFixed(1);
+                document.getElementById('userContributions').textContent = data.user_contributions || 0;
+            } catch (error) {
+                console.error('Failed to load statistics:', error);
+            }
+        }
+
+        // Load statistics on page load
+        window.addEventListener('load', () => {
+            loadStatistics();
+        });
+    </script>
+</body>
+</html>
