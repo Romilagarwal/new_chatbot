@@ -7,7 +7,7 @@ import time
 from huggingface_hub import login
 
 # Replace with your actual token
-login(token="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")
+login(token="")
 def check_requirements():
     """Check if system meets requirements"""
     print("\n" + "="*60)
