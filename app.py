@@ -10,6 +10,7 @@ import os
 from datetime import datetime
 import pytz
 from pathlib import Path
+from stats_cards_updater import calculate_dashboard_stats
 
 # Import enhanced model utilities with Ollama and dynamic learning
 from model_utils import (
@@ -25,6 +26,36 @@ Compress(app)
 
 # Ensure data directory exists
 Path('data').mkdir(exist_ok=True)
+
+
+def _load_manual_stats_override(file_path: str = 'data/manual_stats_override.json'):
+    """Load manual stat-card override values for audit/demo mode."""
+    try:
+        path = Path(file_path)
+        if not path.exists():
+            return None
+
+        with path.open('r', encoding='utf-8') as f:
+            data = json.load(f)
+
+        if not isinstance(data, dict) or not data.get('enabled', False):
+            return None
+
+        allowed_fields = [
+            'total_queries',
+            'successful_responses',
+            'average_rating',
+            'corrections_submitted',
+            'total_feedback',
+        ]
+
+        override = {}
+        for field in allowed_fields:
+            if field in data:
+                override[field] = data[field]
+        return override
+    except Exception:
+        return None
 
 # ============================================================================
 # MAIN ROUTES
@@ -58,31 +89,14 @@ def health():
 def stats():
     """Get usage statistics"""
     try:
-        # Read feedback data
-        feedback_file = 'data/feedback.csv'
-        chat_log_file = 'data/chat_logs.json'
-
-        stats_data = {
-            'total_queries': 0,
-            'total_feedback': 0,
-            'average_rating': 0,
-            'knowledge_base': get_kb_statistics()
-        }
-
-        # Count feedback entries
-        if os.path.exists(feedback_file):
-            import pandas as pd
-            df = pd.read_csv(feedback_file)
-            stats_data['total_feedback'] = len(df)
-            if 'rating' in df.columns:
-                stats_data['average_rating'] = float(df['rating'].mean())
-
-        # Count chat logs
-        if os.path.exists(chat_log_file):
-            with open(chat_log_file, 'r') as f:
-                logs = json.load(f)
-                stats_data['total_queries'] = len(logs)
-
+        stats_data = calculate_dashboard_stats('data')
+        manual_override = _load_manual_stats_override()
+        if manual_override:
+            stats_data.update(manual_override)
+            stats_data['stats_mode'] = 'manual'
+        else:
+            stats_data['stats_mode'] = 'auto'
+        stats_data['knowledge_base'] = get_kb_statistics()
         return jsonify(_sanitize_for_json(stats_data))
     except Exception as e:
         return jsonify({'error': str(e)}), 500
