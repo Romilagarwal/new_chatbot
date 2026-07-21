@@ -1,19 +1,19 @@
 # Machine Troubleshooting AI Assistant
 
-An advanced AI-powered chatbot system for industrial machine diagnostics and troubleshooting, built with **Mistral 7B Instruct v0.3** and semantic search capabilities.
+An advanced AI-powered chatbot system for industrial machine diagnostics and troubleshooting, built with **Ollama (Mistral Nemo)** and dynamic semantic search capabilities.
 
 ![Python](https://img.shields.io/badge/Python-3.8%2B-blue)
 ![Flask](https://img.shields.io/badge/Flask-2.0%2B-green)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.0%2B-red)
-![Transformers](https://img.shields.io/badge/HuggingFace-Transformers-yellow)
+![Ollama](https://img.shields.io/badge/Ollama-Mistral_Nemo-orange)
 ![License](https://img.shields.io/badge/License-MIT-purple)
 
 ## Features
 
 ### AI-Powered Diagnostics
-- **Mistral 7B Model**: Uses Mistral-7B-Instruct-v0.3 for intelligent troubleshooting responses
+- **Mistral Nemo Model**: Uses Ollama with Mistral Nemo for intelligent troubleshooting responses
 - **RAG (Retrieval-Augmented Generation)**: Combines semantic search with AI generation for accurate solutions
 - **Context-Aware**: Leverages historical maintenance data to provide relevant solutions
+- **Dynamic Learning**: Real-time updates to the knowledge base from user contributions
 
 ### Semantic Search
 - **Vector Embeddings**: Uses Sentence-BERT (all-MiniLM-L6-v2) for intelligent case matching
@@ -30,32 +30,28 @@ An advanced AI-powered chatbot system for industrial machine diagnostics and tro
 - **Statistics Dashboard**: Tracks queries, success rates, and user contributions
 - **Export Functionality**: Download chat history and correction submissions
 
-### Production Ready
-- **Optimized Performance**: FP16 precision for efficient GPU usage (~13.5GB VRAM)
-- **Error Handling**: Robust fallback mechanisms for reliability
-- **Scalable Architecture**: Modular design for easy maintenance and updates
-
 ## System Requirements
 
-### Hardware
-- **GPU**: NVIDIA GPU with 16GB+ VRAM (tested on RTX 4090 20GB)
-- **RAM**: 16GB+ system memory
-- **Storage**: 100GB+ free space (for model downloads)
-
 ### Software
+- **Ollama**: Must be installed and running locally
 - **OS**: Windows 10/11, Linux (Ubuntu 20.04+), or macOS
 - **Python**: 3.8 or higher
-- **CUDA**: 11.7+ (for GPU acceleration)
 
 ## Installation
 
-### 1. Clone the Repository
+### 1. Install Ollama & Pull Model
+First, install [Ollama](https://ollama.com/) on your system. Once installed, pull the required model:
+```bash
+ollama pull mistral-nemo
+```
+
+### 2. Clone the Repository
 ```bash
 git clone https://github.com/Romilagarwal/new_chatbot.git
 cd new_chatbot
 ```
 
-### 2. Create Virtual Environment
+### 3. Create Virtual Environment
 ```bash
 python -m venv venv
 
@@ -66,31 +62,22 @@ venv\Scripts\activate
 source venv/bin/activate
 ```
 
-### 3. Install Dependencies
+### 4. Install Dependencies
 ```bash
-pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
-pip install transformers accelerate bitsandbytes
-pip install flask flask-compress sentence-transformers
-pip install pandas numpy scikit-learn python-dotenv pytz
+pip install flask flask-compress sentence-transformers pandas numpy scikit-learn python-dotenv pytz requests
 ```
 
-### 4. Setup Environment Variables
+### 5. Setup Environment Variables
 Create a `.env` file in the project root:
 ```env
-# Optional: HuggingFace token for gated models
-HF_TOKEN=your_huggingface_token_here
-
-# Device configuration
-DEVICE=cuda
-
 # Dataset path
 DATABASE_PATH=mix_dataset_final.csv
 
-# Cache directory (optional)
-HF_HOME=D:\.cache\huggingface\hub
+# Ollama Host (default)
+OLLAMA_HOST=http://localhost:11434
 ```
 
-### 5. Prepare Dataset
+### 6. Prepare Dataset
 Place your machine maintenance dataset CSV file (`mix_dataset_final.csv`) in the project root with the following columns:
 - `Machine Type`
 - `MACHINE` (Machine Name)
@@ -107,9 +94,9 @@ python app.py
 ```
 
 The application will:
-1. Load the Mistral 7B model (~2-3 minutes first time)
-2. Create embeddings for the reference dataset
-3. Start the Flask server at `http://172.19.66.141:9352`
+1. Connect to the local Ollama service
+2. Create embeddings for the reference dataset (or load from memory)
+3. Start the Flask server
 4. Automatically open your web browser
 
 ### Using the Chatbot
@@ -144,50 +131,37 @@ Help improve the system by submitting your solved cases:
 
 ## Project Structure
 
-```
+```text
 new_chatbot/
 ├── app.py                      # Main Flask application
-├── advanced_model.py           # Mistral model wrapper
-├── model_utils.py             # RAG and semantic search utilities
-├── model_loader.py            # Model testing and verification
+├── ollama_model.py             # Ollama API model wrapper
+├── model_utils.py              # RAG and dynamic learning base
+├── stats_cards_updater.py      # Analytics logic
 ├── templates/
-│   └── index.html             # Frontend interface
-├── data/                      # Generated data directory
-│   ├── feedback.csv           # User feedback
-│   ├── user_corrections.csv   # Submitted solutions
-│   └── chat_logs.json         # Chat history
-├── mix_dataset_final.csv      # Your maintenance dataset
-├── .env                       # Environment configuration
-└── README.md                  # This file
+│   └── index.html              # Frontend interface
+├── data/                       # Generated data directory
+│   ├── feedback.csv            # User feedback
+│   ├── user_corrections.csv    # Submitted solutions
+│   └── chat_logs.json          # Chat history
+├── mix_dataset_final.csv       # Your maintenance dataset
+├── .env                        # Environment configuration
+└── README.md                   # This file
 ```
 
 ## Configuration
 
 ### Model Settings
 
-**Mistral 7B Instruct v0.3** configuration in `advanced_model.py`:
-- **Precision**: FP16 (float16)
-- **VRAM Usage**: ~13.5GB
-- **Context Length**: 32,768 tokens
+**Mistral Nemo** configuration in `ollama_model.py`:
 - **Temperature**: 0.7 (troubleshooting), 0.8 (chat)
-- **Top-p**: 0.9-0.92
+- **Top-p**: 0.9
 
 ### Search Parameters
 
 Adjust in `model_utils.py`:
 ```python
 threshold = 0.60        # Similarity threshold
-top_n = 3              # Number of primary results
-extra_results = 15     # Additional dropdown candidates
-```
-
-### Server Settings
-
-Modify in `app.py`:
-```python
-host = '172.19.66.141'  # Server IP
-port = 9352             # Server port
-debug = False           # Production mode
+top_n = 3               # Number of primary results
 ```
 
 ## API Endpoints
@@ -204,18 +178,18 @@ debug = False           # Production mode
 | `/export/chat-history` | GET | Export chat logs |
 | `/export/corrections` | GET | Export user contributions |
 
-## Performance
+## Troubleshooting
 
-### Model Performance
-- **First Load**: 2-3 minutes (downloads ~87GB)
-- **Subsequent Loads**: <1 minute (from cache)
-- **Generation Speed**: 15-25 tokens/second
-- **Latency**: Low (full GPU, no CPU offload)
+### Model Not Loading / Ollama API Error
+Ensure Ollama is running in the background. Open a terminal and run:
+```bash
+ollama serve
+```
 
-### Search Performance
-- **Embedding Creation**: Batched processing for efficiency
-- **Query Time**: <1 second for semantic search
-- **Accuracy**: Hybrid approach ensures relevant results
+### Dataset Issues
+- Verify CSV format matches expected columns
+- Check for missing values in critical columns
+- Ensure proper encoding (UTF-8)
 
 ## Contributing
 
@@ -229,59 +203,3 @@ Contributions are welcome! Here's how you can help:
 ## License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
-
-## Acknowledgments
-
-- **Mistral AI** for the Mistral 7B model
-- **HuggingFace** for Transformers library
-- **Sentence-Transformers** for embedding models
-- **Flask** team for the web framework
-
-## Contact
-
-**Romil Agarwal**
-- GitHub: [@Romilagarwal](https://github.com/Romilagarwal)
-- Repository: [new_chatbot](https://github.com/Romilagarwal/new_chatbot)
-
-## Troubleshooting
-
-### Model Not Loading
-```bash
-# Check GPU availability
-python -c "import torch; print(torch.cuda.is_available())"
-
-# Check disk space
-# Ensure ~100GB free in cache directory
-```
-
-### Out of Memory
-- Reduce `max_tokens` in generation config
-- Close other GPU applications
-- Consider using quantization (4-bit) if needed
-
-### Slow Performance
-- Verify CUDA is properly installed
-- Check GPU utilization: `nvidia-smi`
-- Ensure model is on GPU, not CPU
-
-### Dataset Issues
-- Verify CSV format matches expected columns
-- Check for missing values in critical columns
-- Ensure proper encoding (UTF-8)
-
-## Future Enhancements
-
-- [ ] Multi-language support
-- [ ] Voice input/output
-- [ ] Mobile app version
-- [ ] Advanced analytics dashboard
-- [ ] Fine-tuning on domain-specific data
-- [ ] Integration with maintenance management systems
-- [ ] Real-time notification system
-- [ ] Multi-user role management
-
----
-
-**Built with ❤️ for industrial maintenance teams**
-
-*Star ⭐ this repository if you find it helpful!*
